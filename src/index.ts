@@ -24,6 +24,10 @@ async function main() {
 
   const timestamps = await getTimestampts()
   const outputDir = await getOutputDir()
+  if (!outputDir) {
+    return
+  }
+
   let isMergeVideoEnable: boolean = false
   if (timestamps.length > 1) {
     const responds = await prompts({
