@@ -122,7 +122,7 @@ async function main() {
 
   const videosTxtPath = temporaryFile()
   const videosTxtContent = trimmedVideos
-    .map((info) => `file ${slash(info.outputPath)}`)
+    .map((info) => `file "${slash(info.outputPath)}"`)
     .join('\n')
   writeFileSync(videosTxtPath, videosTxtContent)
 
