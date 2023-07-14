@@ -11,19 +11,43 @@ import kleur from 'kleur'
 import ora from 'ora'
 import path from 'path'
 import { execa } from 'execa'
-import { path as ffmpegPath } from '@ffmpeg-installer/ffmpeg'
+import slash from 'slash'
+import { temporaryFile } from 'tempy'
+import ffmpegPath from 'ffmpeg-static'
+import args from 'args'
 
-main()
+args.option(['V', 'verbose'], 'Show verbose logs for debugging.', false)
+const flags = args.parse(process.argv)
+
+main().catch((error) => {
+  logError(error)
+
+  process.exit(1)
+})
+
+function logError(error: unknown) {
+  if (!flags.verbose) {
+    return
+  }
+
+  console.error(error)
+}
 
 async function main() {
-  const { temporaryFile } = await import('tempy')
+  const spinner = ora('Preparing dependencies.')
+  if (!ffmpegPath || typeof ffmpegPath !== 'string') {
+    spinner.fail('FFMPEG is not found.')
+    return
+  }
+  spinner.stop()
+
   const videoPath = await getVideoPath()
   if (!videoPath) {
     return
   }
 
   const timestamps = await getTimestampts()
-  const outputDir = await getOutputDir()
+  const outputDir = await getOutputDir(videoPath)
   if (!outputDir) {
     return
   }
@@ -40,7 +64,10 @@ async function main() {
 
   const outputInfos = timestamps.map((timestamp, idx) => {
     const id = idx + 1
-    const outputPath = path.join(outputDir, `${id}.${timestamp.join('-')}.mp4`)
+    const outputPath = path.join(
+      outputDir,
+      `${id}.${timestamp.join('-').replaceAll(':', '_')}.mp4` // Windows doesn't support the use of ":" for naming file
+    )
     const ffmpegArg = [
       '-i',
       path.resolve(videoPath),
@@ -64,7 +91,6 @@ async function main() {
     }
   })
 
-  const spinner = ora()
   for (const outputInfo of outputInfos) {
     spinner.start(`Trimming video ${outputInfo.id}.`)
 
@@ -79,6 +105,7 @@ async function main() {
       outputInfo.isTrimmed = true
     } catch (error) {
       spinner.fail(`Error when trimming video ${outputInfo.id}.`)
+      logError(error)
     }
   }
 
@@ -94,14 +121,12 @@ async function main() {
   }
 
   const videosTxtPath = temporaryFile()
-  writeFileSync(
-    videosTxtPath,
-    trimmedVideos
-      .map((info) => `file ${path.resolve(videosTxtPath, info.outputPath)}`)
-      .join('\n')
-  )
+  const videosTxtContent = trimmedVideos
+    .map((info) => `file ${slash(info.outputPath)}`)
+    .join('\n')
+  writeFileSync(videosTxtPath, videosTxtContent)
 
-  const mergedPath = path.join(outputDir, videoPath)
+  const mergedPath = path.join(outputDir, path.basename(videoPath))
   try {
     await execa(ffmpegPath, [
       '-f',
@@ -116,6 +141,7 @@ async function main() {
     ])
   } catch (error) {
     spinner.fail(`Failed to merge ${trimmedVideos.length} videos.`)
+    throw error
   } finally {
     unlinkSync(videosTxtPath)
   }
@@ -161,13 +187,17 @@ async function getVideoPath() {
   return videoPath
 }
 
-async function getOutputDir() {
+async function getOutputDir(videoPath: string) {
+  const defaultOutputDir = path.basename(videoPath).replace(/\.mp4$/, '')
   const { outputDir } = await prompts([
     {
       name: 'outputDir',
-      message: 'Enter the output directory:',
+      message: `Enter the output directory (default: ${kleur.italic(
+        defaultOutputDir
+      )}):`,
       type: 'text',
       format: (value) => path.resolve(value),
+      initial: defaultOutputDir,
       validate: (value) => {
         if (!value) {
           return true

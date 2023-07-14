@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "include": ["src"],
+  "include": ["src", "types/ffmpeg-static.d.ts"],
   "compilerOptions": {
     "lib": ["es2023"],
     "module": "Node16",
