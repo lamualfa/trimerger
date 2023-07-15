@@ -1,7 +1,7 @@
 <h1 align="center">Trimerger</h1> 
 
 <p align="center">
-  <img src="./screenshot.png" width="680" />
+  <img src="./screenshot.png" width="620" />
 </p>
 
 <p align="center">
