@@ -14,18 +14,25 @@ import { execa } from 'execa'
 import slash from 'slash'
 import { temporaryFile } from 'tempy'
 import ffmpegPath from 'ffmpeg-static'
-import args from 'args'
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 
-args.option(['V', 'verbose'], 'Show verbose logs for debugging.', false)
-const flags = args.parse(process.argv)
+type Flags = Awaited<ReturnType<typeof getFlags>>
 
-main().catch((error) => {
-  logError(error)
+safeMain()
 
-  process.exit(1)
-})
+async function safeMain() {
+  const flags = await getFlags()
 
-function logError(error: unknown) {
+  try {
+    await main(flags)
+  } catch (error) {
+    logError(error, flags)
+    process.exit(1)
+  }
+}
+
+function logError(error: unknown, flags: Flags) {
   if (!flags.verbose) {
     return
   }
@@ -33,7 +40,7 @@ function logError(error: unknown) {
   console.error(error)
 }
 
-async function main() {
+async function main(flags: Flags) {
   const spinner = ora('Preparing dependencies.')
   if (!ffmpegPath || typeof ffmpegPath !== 'string') {
     spinner.fail('FFMPEG is not found.')
@@ -66,7 +73,7 @@ async function main() {
     const id = idx + 1
     const outputPath = path.join(
       outputDir,
-      `${id}.${timestamp.join('-').replaceAll(':', '_')}.mp4` // Windows doesn't support the use of ":" for naming file
+      `${id}. ${timestamp.join(' ').replaceAll(':', '-')}.mp4` // Windows doesn't support the use of ":" for naming file
     )
     const ffmpegArg = [
       '-i',
@@ -98,14 +105,14 @@ async function main() {
       await execa(ffmpegPath, outputInfo.ffmpegArg)
       spinner.succeed(
         `Video ${outputInfo.id} has been trimmed to "${kleur.italic(
-          outputInfo.outputPath
+          path.relative(process.cwd(), outputInfo.outputPath)
         )}".`
       )
 
       outputInfo.isTrimmed = true
     } catch (error) {
       spinner.fail(`Error when trimming video ${outputInfo.id}.`)
-      logError(error)
+      logError(error, flags)
     }
   }
 
@@ -122,7 +129,10 @@ async function main() {
 
   const videosTxtPath = temporaryFile()
   const videosTxtContent = trimmedVideos
-    .map((info) => `file "${slash(info.outputPath)}"`)
+    .map(
+      (info) =>
+        `file '${escapeFfmpegSpecialCharacters(slash(info.outputPath))}'`
+    )
     .join('\n')
   writeFileSync(videosTxtPath, videosTxtContent)
 
@@ -148,9 +158,24 @@ async function main() {
 
   spinner.succeed(
     `Success merging ${trimmedVideos.length} videos to ${kleur.italic(
-      mergedPath
+      path.relative(process.cwd(), mergedPath)
     )}.`
   )
+}
+
+async function getFlags() {
+  return await yargs(hideBin(process.argv))
+    .option('verbose', {
+      alias: 'v',
+      type: 'boolean',
+      default: false,
+      description: 'Show verbose logs for debugging.',
+    })
+    .parse()
+}
+
+function escapeFfmpegSpecialCharacters(text: string) {
+  return text.replaceAll(/'/g, "\\'")
 }
 
 async function getVideoPath() {
