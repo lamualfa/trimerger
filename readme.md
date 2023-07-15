@@ -1,11 +1,11 @@
 <h1 align="center">Trimerger</h1> 
 
 <p align="center">
-  <img src="./screenshot.png" width="620" />
+  <img src="https://raw.githubusercontent.com/lamualfa/trimerger/main/screenshot.png" width="640" />
 </p>
 
 <p align="center">
-  Easily trim a video using multiple timestamps with FFMPEG.
+  ✂️ Easily trim a video using multiple timestamps with FFMPEG.
 </p>
 
 <p align="center">
@@ -41,3 +41,4 @@ yarn dlx trimerger
 
 - Currently `trimerger` only support `.mp4` video.
 - The trimming results may not accurate because we don't re-encode the video for performance purpose. The accurate option will be implemented later.
+- This is a side project. I have no plans to add advanced features.
