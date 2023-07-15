@@ -1,14 +1,15 @@
 {
   "name": "trimerger",
-  "description": "Easily trim a video using multiple timestamps with FFMPEG.",
+  "description": "✂️ Easily trim a video using multiple timestamps with FFMPEG.",
   "keywords": [
     "video",
     "ffmpeg",
     "trim",
     "merge",
-    "concat"
+    "concat",
+    "mp4"
   ],
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "bin": "dist/index.js",
   "scripts": {
