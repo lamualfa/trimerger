@@ -34,7 +34,9 @@
     "yargs": "^17.7.2"
   },
   "files": [
-    "dist",
-    "screenshot.png"
-  ]
+    "dist"
+  ],
+  "repository": {
+    "url": "https://github.com/lamualfa/trimerger"
+  }
 }
