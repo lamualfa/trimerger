@@ -104,7 +104,7 @@ async function main(flags: Flags) {
     try {
       await execa(ffmpegPath, outputInfo.ffmpegArg)
       spinner.succeed(
-        `Video ${outputInfo.id} has been trimmed to "${kleur.italic(
+        `Timestamp ${outputInfo.id} has been trimmed to "${kleur.italic(
           path.relative(process.cwd(), outputInfo.outputPath)
         )}".`
       )
