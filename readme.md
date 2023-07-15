@@ -1,7 +1,7 @@
 <h1 align="center">Trimerger</h1> 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lamualfa/trimerger/main/screenshot.png" width="640" />
+  <img alt="Screenshot" src="https://raw.githubusercontent.com/lamualfa/trimerger/main/screenshot.png" width="640" />
 </p>
 
 <p align="center">
@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <img alt="Static Badge" src="https://badgen.net/npm/v/trimerger?color=red">
-  <img alt="Static Badge" src="https://badgen.net/static/ffmpeg/6.0/green">
-  <img alt="Static Badge" src="https://badgen.net/static/license/WTFPL/purple">
+  <img alt="NPM Version Badge" src="https://badgen.net/npm/v/trimerger?color=red">
+  <img alt="FFMPEG Version Badge" src="https://badgen.net/static/ffmpeg/6.0/green">
+  <img alt="License Badge" src="https://badgen.net/github/license/lamualfa/trimerger?color=purple">
 </p>
 
 <hr/>
