@@ -1,3 +1,9 @@
+# DEPRECATED
+
+Please use **[videlo](https://github.com/lamualfa/videlo)** instead.
+
+<hr>
+
 <h1 align="center">Trimerger</h1> 
 
 <p align="center">
